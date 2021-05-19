@@ -39,19 +39,7 @@ export default class Lighting {
     }
   };
 
-  public init_12v_leds = () => {
-    this.device.setMode(1);
-  };
-
-  public turn_on = () => {
-    this.change_colour("#FFFFFF");
-  };
-
-  public turn_off = () => {
-    this.change_colour("#000000");
-  };
-
-  public alter_brightness = (inc_or_dec: "increment" | "decrement") => {
+  private alter_brightness = (inc_or_dec: "increment" | "decrement") => {
     let colourArray = this.current_led_colour.split("").slice(1, 7);
     colourArray.forEach((element, i) => {
       let value_number = parseInt(element);
@@ -59,7 +47,11 @@ export default class Lighting {
       if (!isNaN(value_number)) {
         switch (inc_or_dec) {
           case "increment":
-            colourArray[i] = (value_number + 1).toString();
+            if (value_number === 9) {
+              colourArray[i] = "A";
+            } else {
+              colourArray[i] = (value_number + 1).toString();
+            }
             break;
           case "decrement":
             if (value_number !== 0) {
@@ -116,9 +108,35 @@ export default class Lighting {
         }
       }
     });
+    this.current_led_colour = "#" + colourArray.join("");
+    this.device.setColor(this.current_led_colour);
     console.log(colourArray);
+  };
+
+  public init_12v_leds = () => {
+    this.device.setMode(1);
+  };
+
+  public turn_on = () => {
+    this.change_colour("#FFFFFF");
+  };
+
+  public turn_off = () => {
+    this.change_colour("#000000");
+  };
+
+  public increase_brightness = (amount: number) => {
+    for (let i = 0; i < amount; i++) {
+      this.alter_brightness("increment");
+    }
+  };
+
+  public decrease_brightness = (amount: number) => {
+    for (let i = 0; i < amount; i++) {
+      this.alter_brightness("decrement");
+    }
   };
 }
 
 let led = new Lighting();
-led.alter_brightness("increment");
+led.decrease_brightness(1);
